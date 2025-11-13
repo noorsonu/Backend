@@ -68,7 +68,16 @@ public class PostController {
         if (image != null && !image.isEmpty()) {
             img = imageService.addImageToPost(p, admin, image);
         }
-        return ResponseEntity.ok(java.util.Map.of("post", p, "image", img));
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("message", "Post created successfully");
+        body.put("post", p);
+        if (img != null) {
+            body.put("image", img);
+            body.put("imageUploaded", true);
+        } else {
+            body.put("imageUploaded", false);
+        }
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(body);
     }
 
 
