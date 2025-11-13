@@ -24,6 +24,7 @@ com\main\enums\OtpPurpose.class
 com\main\dtos\AuthResponse.class
 com\main\services\PostService.class
 com\main\config\SecurityConfig.class
+com\main\controllers\FaviconController.class
 com\main\security\JwtUtils.class
 com\main\dtos\AdminDashboardStatsDto.class
 com\main\config\WebConfig.class
@@ -66,3 +67,4 @@ com\main\serviceImpls\CommentServiceImpl.class
 com\main\repositories\PostRepository.class
 com\main\services\MailService.class
 com\main\entities\Comment.class
+com\main\controllers\HomeController.class
