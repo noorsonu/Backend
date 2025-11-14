@@ -109,8 +109,7 @@ public class SecurityConfig {
                                 .filter(s -> !s.isEmpty())
                                 .collect(Collectors.toList());
 
-                // Fallback: if no origins are configured (e.g. empty env var on Render),
-                // explicitly allow local dev and the deployed Vercel frontend.
+                
                 if (origins.isEmpty()) {
                         origins = List.of(
                                         "http://localhost:3000",
