@@ -10,22 +10,3 @@ public class YaAllahApplication {
 		SpringApplication.run(YaAllahApplication.class, args);
 	}
 }
-
-
-
-//"/api/auth/**",
-//"/favicon.ico",
-//"/**",
-//"/error",
-//"/public/**",
-//"/uploads/**",
-//"/v3/api-docs/**",
-//"/swagger-ui.html",
-//"/swagger-ui/**",	
-//"/swagger-resources/**",
-//"/webjars/**",
-
-
-
-// hey
-//"/api/account/**"
