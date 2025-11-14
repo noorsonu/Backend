@@ -24,4 +24,8 @@ public class YaAllahApplication {
 //"/swagger-ui/**",	
 //"/swagger-resources/**",
 //"/webjars/**",
+
+
+
+// hey
 //"/api/account/**"
