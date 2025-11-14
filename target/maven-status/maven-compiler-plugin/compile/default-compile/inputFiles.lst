@@ -4,15 +4,11 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\P
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\SecurityConfig.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\SwaggerConfig.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\WebConfig.java
-C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\AccountRecoveryController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\AdminController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\AuthController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\CommentController.java
-C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\FaviconController.java
-C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\HomeController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\PostController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\ProfileController.java
-C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\UserController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\dtos\AccountRecoveryConfirmDto.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\dtos\AdminCommentDto.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\dtos\AdminDashboardStatsDto.java

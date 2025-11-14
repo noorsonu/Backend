@@ -108,6 +108,15 @@ public class SecurityConfig {
                                 .map(String::trim)
                                 .filter(s -> !s.isEmpty())
                                 .collect(Collectors.toList());
+
+                // Fallback: if no origins are configured (e.g. empty env var on Render),
+                // explicitly allow local dev and the deployed Vercel frontend.
+                if (origins.isEmpty()) {
+                        origins = List.of(
+                                        "http://localhost:3000",
+                                        "https://allah-blog.vercel.app");
+                }
+
                 configuration.setAllowedOriginPatterns(origins);
 
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
