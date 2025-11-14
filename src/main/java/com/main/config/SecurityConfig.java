@@ -46,8 +46,6 @@ public class SecurityConfig {
         @Autowired
         private PasswordEncoder passwordEncoder;
 
-        // Comma-separated list of allowed origins. Configurable via env
-        // (CORS_ALLOWED_ORIGINS) or properties.
         @Value("${cors.allowed-origins:*}")
         private String corsAllowedOrigins;
 
@@ -102,8 +100,6 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                // Support wildcard and multiple origins via patterns, works with
-                // allowCredentials(true)
                 List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
                                 .map(String::trim)
                                 .filter(s -> !s.isEmpty())

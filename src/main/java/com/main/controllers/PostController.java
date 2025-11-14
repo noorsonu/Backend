@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class PostController {
 
     @Autowired
