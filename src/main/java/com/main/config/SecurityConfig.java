@@ -77,7 +77,6 @@ public class SecurityConfig {
                                                 .requestMatchers(
                                                                 "/favicon.ico",
                                                                 "/**",
-                                                                "/",
                                                                 "/error",
                                                                 "/public/**",
                                                                 "/uploads/**",
@@ -89,6 +88,7 @@ public class SecurityConfig {
                                                                 "/api/auth/**",
                                                                 "/api/account/**",
                                                                 "/webjars/**")
+                                                
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .anyRequest().authenticated())
