@@ -35,23 +35,14 @@ public class AuthController {
     @Autowired 
     private TokenBlackList tokenBlacklist;
 
-    @PostMapping(value = "/register-user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
         try {
             userService.register(req);
-            return ResponseEntity.ok(Map.of("message", "User registered successfully"));
+            String message = "User registered successfully";
+            return ResponseEntity.ok(Map.of("message", message));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @PostMapping(value = "/register-admin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> registerAdmin(@RequestBody @Valid RegisterRequest req) {
-        try {
-            userService.registerAdmin(req);
-            return ResponseEntity.ok(Map.of("message", "Admin registered successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
         }
     }
 

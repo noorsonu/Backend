@@ -70,4 +70,17 @@ public class PostServiceImpl implements PostService {
     public Post getById(Long id) {
         return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
     }
+
+    @Override
+    public List<Post> searchPosts(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of(); // Or throw an exception, depending on desired behavior
+        }
+        return postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword);
+    }
+
+    @Override
+    public List<Post> filterPosts(String categoryName, String tagName, String authorEmail) {
+        return postRepository.findByFilters(categoryName, tagName, authorEmail);
+    }
 }

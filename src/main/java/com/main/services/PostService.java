@@ -16,6 +16,8 @@ public interface PostService {
     List<Post> listAll();
     
     Post getById(Long id);
+    List<Post> searchPosts(String keyword);
+    List<Post> filterPosts(String categoryName, String tagName, String authorEmail);
    
 }
 

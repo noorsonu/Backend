@@ -4,17 +4,18 @@ import com.main.dtos.*;
 import com.main.entities.Comment;
 import com.main.entities.Post;
 import com.main.entities.UserEntity;
-import com.main.enums.Role;
 import com.main.repositories.CommentRepository;
 import com.main.repositories.PostRepository;
 import com.main.repositories.UserRepository;
 import com.main.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +36,10 @@ public class AdminServiceImpl implements AdminService {
         long totalUsers = userRepository.count();
         long totalPosts = postRepository.count();
         long totalComments = commentRepository.count();
-        long totalAdmins = userRepository.countByRole(Role.ADMIN);
+        long totalAdmins = userRepository.countByUserType("ADMIN");
         
-        // Get today's start time
-        Instant todayStart = LocalDateTime.now().toLocalDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+        // Get today's start time in UTC
+        Instant todayStart = java.time.LocalDate.now(java.time.ZoneOffset.UTC).atStartOfDay().toInstant(java.time.ZoneOffset.UTC);
         
         long usersToday = userRepository.findAll().stream()
                 .filter(user -> user.getCreatedAt() != null && user.getCreatedAt().isAfter(todayStart))
@@ -84,8 +85,8 @@ public class AdminServiceImpl implements AdminService {
         if (updateRequest.getPhoneNumber() != null) {
             user.setPhoneNumber(updateRequest.getPhoneNumber());
         }
-        if (updateRequest.getRole() != null) {
-            user.setRole(Role.valueOf(updateRequest.getRole()));
+        if (updateRequest.getUserType() != null) {
+            user.setUserType(updateRequest.getUserType());
         }
 
         UserEntity updatedUser = userRepository.save(user);
@@ -93,13 +94,21 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdminPostDto> getAllPostsWithStats() {
-        return postRepository.findAll().stream()
+
+        List<Post> posts = postRepository.findAll();
+        if (posts == null || posts.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return posts.stream()
                 .map(this::convertToAdminPostDto)
                 .collect(Collectors.toList());
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public AdminPostDto getPostWithStats(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
@@ -138,7 +147,7 @@ public class AdminServiceImpl implements AdminService {
                 user.getName(),
                 user.getEmail(),
                 user.getPhoneNumber(),
-                user.getRole(),
+                user.getUserType(),
                 user.getCreatedAt(),
                 postCount,
                 commentCount
@@ -147,13 +156,21 @@ public class AdminServiceImpl implements AdminService {
 
     private AdminPostDto convertToAdminPostDto(Post post) {
         long commentCount = commentRepository.countByPost(post);
-        
+
+        String authorName = null;
+        String authorEmail = null;
+        UserEntity createdBy = post.getCreatedBy();
+        if (createdBy != null) {
+            authorName = createdBy.getName();
+            authorEmail = createdBy.getEmail();
+        }
+
         return new AdminPostDto(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getCreatedBy().getName(),
-                post.getCreatedBy().getEmail(),
+                authorName,
+                authorEmail,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentCount
@@ -174,7 +191,9 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public void deleteUser(Long userId) {
-		// TODO Auto-generated method stub
-		
+		if (!userRepository.existsById(userId)) {
+			throw new RuntimeException("User not found");
+		}
+		userRepository.deleteById(userId);
 	}
 }

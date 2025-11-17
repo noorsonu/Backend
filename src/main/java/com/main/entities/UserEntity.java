@@ -1,6 +1,5 @@
 package com.main.entities;
 
-import com.main.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -30,9 +29,11 @@ public class UserEntity {
 	@Column(nullable = true, unique = true)
 	private String phoneNumber;
 
-	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Role role;
+	private boolean isBlocked = false;
+
+	@Column(nullable = false)
+	private String userType;
 
 	@NotBlank(message = "Password must not be blank")
 	@Column(nullable = false)

@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import com.main.dtos.AdminSingleConfirmDto;
 import com.main.dtos.SetPhoneRequest;
+import com.main.dtos.UserDto;
 import com.main.entities.UserEntity;
 import com.main.repositories.UserRepository;
 import com.main.services.OtpService;
@@ -37,6 +39,13 @@ public class ProfileController {
 
     private UserEntity currentUser(Authentication auth) {
         return userRepository.findByEmail(auth.getName()).orElseThrow();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getMyProfile(Authentication auth) {
+        UserEntity me = currentUser(auth);
+        UserDto userDto = new UserDto(me.getId(), me.getName(), me.getEmail(), me.getUserType(), null); // Password is null for security
+        return ResponseEntity.ok(userDto);
     }
 
     

@@ -6,6 +6,7 @@ import com.main.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -39,10 +42,16 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 
 		if (token != null && jwtUtils.validateToken(token) && !tokenBlacklist.isBlacklisted(token)) {
-			String email = jwtUtils.extractUsername(token);
-			UserDetails userDetails = userService.loadUserByEmail(email);
+            String email = jwtUtils.extractUsername(token);
+            List<String> roles = jwtUtils.extractRoles(token);
+            UserDetails userDetails = userService.loadUserByEmail(email);
+
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                                                            .map(SimpleGrantedAuthority::new)
+                                                            .collect(Collectors.toList());
+
 			UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null,
-					userDetails.getAuthorities());
+					authorities);
 			SecurityContextHolder.getContext().setAuthentication(auth);
 		}
 

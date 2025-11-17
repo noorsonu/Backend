@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder; // Added import
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.main.dtos.RegisterRequest;
 import com.main.dtos.UserDto;
 import com.main.entities.UserEntity;
-import com.main.enums.Role;
 import com.main.mappers.UserMapper;
 import com.main.repositories.UserRepository;
 import com.main.services.UserService;
@@ -154,7 +155,6 @@ public class UserServiceImpl implements UserService {
 	    }
 	}
 
-	@Override
     public UserEntity register(RegisterRequest req) throws Exception {
         try {
             if (userRepository.existsByEmail(req.getEmail())) {
@@ -168,37 +168,12 @@ public class UserServiceImpl implements UserService {
             user.setEmail(req.getEmail());
             user.setPhoneNumber(req.getPhoneNumber());
             user.setPassword(passwordEncoder.encode(req.getPassword()));
-            user.setRole(Role.USER);
+            user.setUserType("USER");
+            
             UserEntity saved = userRepository.save(user);
             return saved;
         } catch (Exception e) {
             throw new Exception("Registration failed: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public UserEntity registerAdmin(RegisterRequest req) throws Exception {
-        try {
-            if (userRepository.existsByRole(Role.ADMIN)) {
-                throw new Exception("Admin already exists");
-            }
-            if (userRepository.existsByEmail(req.getEmail())) {
-                throw new Exception("Email already exists");
-            }
-            if (req.getPhoneNumber() != null && !req.getPhoneNumber().isBlank() && userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
-                throw new Exception("Phone number already exists");
-            }
-            UserEntity user = new UserEntity();
-            user.setName(req.getName());
-            user.setEmail(req.getEmail());
-            user.setPhoneNumber(req.getPhoneNumber());
-            user.setPassword(passwordEncoder.encode(req.getPassword()));
-            user.setRole(Role.ADMIN);
-            UserEntity saved = userRepository.save(user);
-           
-            return saved;
-        } catch (Exception e) {
-            throw new Exception("Admin registration failed: " + e.getMessage());
         }
     }
 	
@@ -207,11 +182,60 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        if (user.isBlocked()) {
+            throw new DisabledException("User is blocked and cannot log in.");
+        }
+
         return new User(
                 user.getEmail(), user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserType()))
         );
     }
+
+	@Override
+	public void blockUser(Long userId) {
+		// Get current authenticated user's email
+		String currentAdminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+		UserEntity currentAdmin = userRepository.findByEmail(currentAdminEmail)
+				.orElseThrow(() -> new RuntimeException("Authenticated admin not found"));
+
+		if (currentAdmin.getId().equals(userId)) {
+			throw new IllegalArgumentException("Admin cannot block themselves.");
+		}
+
+		UserEntity userToBlock = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+		if ("ADMIN".equals(userToBlock.getUserType())) {
+			throw new IllegalArgumentException("Admin can only block regular users, not other admins.");
+		}
+
+		userToBlock.setBlocked(true);
+		userRepository.save(userToBlock);
+	}
+
+	@Override
+	public void unblockUser(Long userId) {
+		// Get current authenticated user's email
+		String currentAdminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+		UserEntity currentAdmin = userRepository.findByEmail(currentAdminEmail)
+				.orElseThrow(() -> new RuntimeException("Authenticated admin not found"));
+
+		if (currentAdmin.getId().equals(userId)) {
+			throw new IllegalArgumentException("Admin cannot unblock themselves.");
+		}
+
+		UserEntity userToUnblock = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+		if ("ADMIN".equals(userToUnblock.getUserType())) {
+			throw new IllegalArgumentException("Admin can only unblock regular users, not other admins.");
+		}
+
+		userToUnblock.setBlocked(false);
+		userRepository.save(userToUnblock);
+	}
 
 	
 }

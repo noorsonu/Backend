@@ -1,9 +1,7 @@
 package com.main.dtos;
 
-import com.main.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -24,8 +22,7 @@ public class UserDto {
 	@Email(message = "Email must be a valid email")
 	private String email;
 
-	@NotNull(message = "Role is required")
-	private Role role;
+	private String userType;
 
 	@NotBlank(message = "Password must not be blank")
 	@Size(min = 8, max = 20,message = "Password atleast 8 characters and atmost 20 characters")

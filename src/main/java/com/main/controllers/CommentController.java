@@ -1,5 +1,6 @@
 package com.main.controllers;
 
+import com.main.dtos.CommentResponseDto;
 import com.main.dtos.CreateCommentRequest;
 import com.main.dtos.UpdateCommentRequest;
 import com.main.entities.Comment;
@@ -37,41 +38,39 @@ public class CommentController {
 
     // Add a comment to an admin post (any authenticated user)
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<?> addComment(@PathVariable Long postId, @RequestBody CreateCommentRequest req, Authentication auth) {
+    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long postId, @RequestBody CreateCommentRequest req, Authentication auth) {
         UserEntity user = currentUser(auth);
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
-        Comment c = commentService.addComment(post, user, req.getContent());
+        CommentResponseDto c = commentService.addComment(post, user, req.getContent());
         return ResponseEntity.ok(c);
     }
 
     // List comments by post
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<List<Comment>> listByPost(@PathVariable Long postId) {
+    public ResponseEntity<List<CommentResponseDto>> listByPost(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.listByPost(postId));
     }
 
     // Update own comment (or admin any)
-    @PutMapping("/comments/{commentId}")
-    public ResponseEntity<?> updateComment(@PathVariable Long commentId, @RequestBody UpdateCommentRequest req, Authentication auth) {
+    @PutMapping("/comments/{commentId}/edit")
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId, @RequestBody UpdateCommentRequest req, Authentication auth) {
         UserEntity user = currentUser(auth);
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        Comment updated = commentService.updateComment(commentId, user, isAdmin, req.getContent());
+        CommentResponseDto updated = commentService.updateComment(commentId, user, isAdmin, req.getContent());
         return ResponseEntity.ok(updated);
     }
 
     // Delete own comment (or admin any)
-    @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long commentId, Authentication auth) {
+    @DeleteMapping("/comments/{commentId}/user")
+    public ResponseEntity<?> deleteUserComment(@PathVariable Long commentId, Authentication auth) {
         UserEntity user = currentUser(auth);
-        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        commentService.deleteComment(commentId, user, isAdmin);
-        return ResponseEntity.ok(Map.of("message", "Comment deleted"));
+        commentService.deleteComment(commentId, user, false); // isAdmin is false for user deleting their own comment
+        return ResponseEntity.ok(Map.of("message", "Your comment deleted successfully"));
     }
 
     // ADMIN: get comments by user id or name
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/comments/search")
-    public ResponseEntity<?> adminGetComments(@RequestParam(required = false) Long userId,
+    public ResponseEntity<List<CommentResponseDto>> adminGetComments(@RequestParam(required = false) Long userId,
                                               @RequestParam(required = false) String name) {
         if (userId != null) {
             return ResponseEntity.ok(commentService.listByUserId(userId));
@@ -79,7 +78,7 @@ public class CommentController {
         if (name != null && !name.isBlank()) {
             return ResponseEntity.ok(commentService.listByUserName(name));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Provide userId or name"));
+        return ResponseEntity.badRequest().body(List.of()); // Return empty list for bad request
     }
 
     // ADMIN: delete ALL comments by a user (e.g., blocked user)

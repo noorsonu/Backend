@@ -5,10 +5,14 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Date;
+import java.util.List;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.stream.Collectors;
+import io.jsonwebtoken.Claims;
 
 
 @Component
@@ -54,8 +58,12 @@ public class JwtUtils {
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + jwtExpirationMs);
+        List<String> roles = userDetails.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList());
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("roles", roles)
                 .setIssuedAt(now)
                 .setExpiration(exp)
                 .signWith(getKey(), SignatureAlgorithm.HS256)
@@ -75,11 +83,19 @@ public class JwtUtils {
     }
 
     public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        return extractAllClaims(token).get("roles", List.class);
+    }
+
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 }

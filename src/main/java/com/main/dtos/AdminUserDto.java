@@ -1,6 +1,5 @@
 package com.main.dtos;
 
-import com.main.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ public class AdminUserDto {
     private String name;
     private String email;
     private String phoneNumber;
-    private Role role;
+    private String userType;
     private Instant createdAt;
     private long postCount;
     private long commentCount;

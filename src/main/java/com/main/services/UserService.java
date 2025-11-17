@@ -24,10 +24,12 @@ public interface UserService {
 	String deleteUser(Long userId);
 	
 	UserEntity register(RegisterRequest req) throws Exception;
-	
-	UserEntity registerAdmin(RegisterRequest req) throws Exception;
 
 	UserDetails loadUserByEmail(String email) throws UsernameNotFoundException;
+
+	void blockUser(Long userId);
+
+	void unblockUser(Long userId);
 	
 
 

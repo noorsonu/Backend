@@ -1,54 +1,44 @@
 package com.main.bootstrap;
 
+import com.main.entities.UserEntity;
+import com.main.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.main.entities.UserEntity;
-import com.main.enums.Role;
-import com.main.repositories.UserRepository;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AdminInitializer implements CommandLineRunner {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
-    @Value
-    ("${admin.bootstrap.enabled:false}")
-    private boolean bootstrapEnabled;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    @Value
-    ("${admin.email:noorsonu11@gmail.com}")
+    @Value("${app.admin.name}")
+    private String adminName;
+
+    @Value("${app.admin.email}")
     private String adminEmail;
 
-    @Value
-    ("${admin.password:Noormd870@}")
+    @Value("${app.admin.password}")
     private String adminPassword;
 
-    public AdminInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Value("${app.admin.phoneNumber}")
+    private String adminPhoneNumber;
 
     @Override
-    public void run(String... args) {
-        try {
-            if (!bootstrapEnabled) {
-                return;
-            }
-            boolean adminExists = userRepository.existsByRole(Role.ADMIN);
-            if (!adminExists) {
-                UserEntity admin = new UserEntity();
-                admin.setEmail(adminEmail);
-                admin.setPassword(passwordEncoder.encode(adminPassword));
-                admin.setRole(Role.ADMIN);
-                userRepository.save(admin);
-                System.out.println("[AdminInitializer] Seeded default admin '" + adminEmail + "'. Change credentials in application.properties.");
-            }
-        } catch (Exception e) {
-            System.err.println("[AdminInitializer] Failed to seed admin: " + e.getMessage());
+    public void run(String... args) throws Exception {
+        if (userRepository.countByUserType("ADMIN") == 0) {
+            UserEntity admin = new UserEntity();
+            admin.setName(adminName);
+            admin.setEmail(adminEmail);
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setUserType("ADMIN");
+            admin.setPhoneNumber(adminPhoneNumber);
+            userRepository.save(admin);
         }
     }
 }

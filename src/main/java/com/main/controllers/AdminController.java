@@ -2,6 +2,7 @@ package com.main.controllers;
 
 import com.main.dtos.*;
 import com.main.services.AdminService;
+import com.main.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private UserService userService;
 
     // Dashboard Statistics
     @PreAuthorize("hasRole('ADMIN')")
@@ -80,6 +84,30 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error deleting user");
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{userId}/block")
+    public ResponseEntity<?> blockUser(@PathVariable Long userId) {
+        try {
+            userService.blockUser(userId);
+            return ResponseEntity.ok(Map.of("message", "User blocked successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error blocking user: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{userId}/unblock")
+    public ResponseEntity<?> unblockUser(@PathVariable Long userId) {
+        try {
+            userService.unblockUser(userId);
+            return ResponseEntity.ok(Map.of("message", "User unblocked successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error unblocking user: " + e.getMessage());
         }
     }
 

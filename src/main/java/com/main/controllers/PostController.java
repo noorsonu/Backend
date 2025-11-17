@@ -2,13 +2,15 @@ package com.main.controllers;
 
 import com.main.dtos.CreatePostRequest;
 import com.main.dtos.UpdatePostRequest;
+import com.main.dtos.UserPublicDto;
 import com.main.entities.Post;
 import com.main.entities.UserEntity;
-import com.main.enums.Role;
 import com.main.repositories.UserRepository;
-import com.main.services.PostService;
 import com.main.services.ImageService;
+import com.main.services.LikeService;
+import com.main.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -33,6 +35,9 @@ public class PostController {
 
     @Autowired
     private ImageService imageService;
+
+    @Autowired
+    private LikeService likeService;
 
     private UserEntity currentUser(Authentication auth) {
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
@@ -60,9 +65,7 @@ public class PostController {
                                     @RequestParam(value = "image", required = false) org.springframework.web.multipart.MultipartFile image,
                                     Authentication auth) {
         UserEntity admin = currentUser(auth);
-        if (admin.getRole() != Role.ADMIN) {
-            return ResponseEntity.status(403).build();
-        }
+        
         Post p = postService.createPost(title, content, admin);
         com.main.entities.Image img = null;
         if (image != null && !image.isEmpty()) {
@@ -100,4 +103,44 @@ public class PostController {
         }
         return ResponseEntity.ok(java.util.Map.of("post", p));
     }
+
+    @PostMapping("/posts/{postId}/like")
+    public ResponseEntity<?> toggleLikePost(@PathVariable Long postId, Authentication auth) {
+        try {
+            UserEntity user = currentUser(auth);
+            likeService.toggleLike(postId, user);
+            return ResponseEntity.ok(Map.of("message", "Post like status toggled successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error toggling like status"));
+        }
+    }
+
+    @GetMapping("/posts/{postId}/likes")
+    public ResponseEntity<?> getLikesForPost(@PathVariable Long postId) {
+        try {
+            List<UserPublicDto> likedUsers = likeService.getLikesForPost(postId);
+            return ResponseEntity.ok(likedUsers);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error fetching likes"));
+        }
+    }
+
+    @GetMapping("/posts/search")
+    public ResponseEntity<List<Post>> searchPosts(@RequestParam("query") String query) {
+        List<Post> posts = postService.searchPosts(query);
+        return ResponseEntity.ok(posts);
+    }
+
+//    @GetMapping("/posts/filter")
+//    public ResponseEntity<List<Post>> filterPosts(
+//            @RequestParam(value = "category", required = false) String categoryName,
+//            @RequestParam(value = "tag", required = false) String tagName,
+//            @RequestParam(value = "author", required = false) String authorEmail) {
+//        List<Post> posts = postService.filterPosts(categoryName, tagName, authorEmail);
+//        return ResponseEntity.ok(posts);
+//    }
 }

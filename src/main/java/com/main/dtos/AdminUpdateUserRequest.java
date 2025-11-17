@@ -11,5 +11,5 @@ public class AdminUpdateUserRequest {
     private String name;
     private String email;
     private String phoneNumber;
-    private String role; // ADMIN or USER
+    private String userType; // ADMIN or USER
 }
