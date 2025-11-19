@@ -11,7 +11,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	
     List<Comment> findByPost_Id(Long postId);
     List<Comment> findByUser_Id(Long userId);
-    List<Comment> findByUser_NameIgnoreCase(String name);
+    // Search comments by user name using case-insensitive, partial match (for suggestions)
+    List<Comment> findByUser_NameContainingIgnoreCase(String name);
     void deleteByUser_Id(Long userId);
     long countByUser(UserEntity user);
     long countByPost(Post post);

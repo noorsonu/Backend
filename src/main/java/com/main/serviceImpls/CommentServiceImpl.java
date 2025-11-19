@@ -91,7 +91,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentResponseDto> listByUserName(String name) {
-        return commentRepository.findByUser_NameIgnoreCase(name).stream()
+        // Case-insensitive, partial match on user name so suggestions work even for a few letters
+        return commentRepository.findByUser_NameContainingIgnoreCase(name).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

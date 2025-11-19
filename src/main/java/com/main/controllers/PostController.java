@@ -43,17 +43,6 @@ public class PostController {
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // Public reads
-//    @GetMapping("/posts")
-//    public ResponseEntity<List<Post>> listPosts() {
-//        return ResponseEntity.ok(postService.listAll());
-//    }
-//
-//    @GetMapping("/posts/{id}")
-//    public ResponseEntity<Post> getPost(@PathVariable Long id) {
-//        return ResponseEntity.ok(postService.getById(id));
-//    }
-
 
 
 
@@ -133,14 +122,5 @@ public class PostController {
     public ResponseEntity<List<Post>> searchPosts(@RequestParam("query") String query) {
         List<Post> posts = postService.searchPosts(query);
         return ResponseEntity.ok(posts);
-    }
-
-//    @GetMapping("/posts/filter")
-//    public ResponseEntity<List<Post>> filterPosts(
-//            @RequestParam(value = "category", required = false) String categoryName,
-//            @RequestParam(value = "tag", required = false) String tagName,
-//            @RequestParam(value = "author", required = false) String authorEmail) {
-//        List<Post> posts = postService.filterPosts(categoryName, tagName, authorEmail);
-//        return ResponseEntity.ok(posts);
-//    }
+    }	
 }
