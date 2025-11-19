@@ -29,6 +29,9 @@ public class JwtFilter extends OncePerRequestFilter {
 	
 	@Autowired
 	private TokenBlackList tokenBlacklist;
+	
+	@Autowired
+	private CookieUtil cookieUtil;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -37,8 +40,13 @@ public class JwtFilter extends OncePerRequestFilter {
 		String header = request.getHeader("Authorization");
 		String token = null;
 
+		// 1) Try Authorization: Bearer <token>
 		if (header != null && header.startsWith("Bearer ")) {
 			token = header.substring(7);
+		}
+		// 2) Fallback to secure cookie AUTH_TOKEN
+		if (token == null) {
+			token = cookieUtil.getTokenFromCookies(request);
 		}
 
 		if (token != null && jwtUtils.validateToken(token) && !tokenBlacklist.isBlacklisted(token)) {

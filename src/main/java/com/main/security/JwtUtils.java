@@ -5,6 +5,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.main.entities.UserEntity;
+
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Date;

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder; // Added import
@@ -237,5 +238,20 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(userToUnblock);
 	}
 
-	
+	@Override
+	public UserEntity login(String email, String password) {
+		UserEntity user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+		if (user.isBlocked()) {
+			throw new DisabledException("User is blocked and cannot log in.");
+		}
+
+		if (!passwordEncoder.matches(password, user.getPassword())) {
+			throw new BadCredentialsException("Invalid email or password");
+		}
+
+		return user;
+	}
+
 }
