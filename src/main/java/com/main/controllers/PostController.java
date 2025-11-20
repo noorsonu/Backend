@@ -1,11 +1,13 @@
 package com.main.controllers;
 
+import com.main.dtos.AdminPostDto;
 import com.main.dtos.CreatePostRequest;
 import com.main.dtos.UpdatePostRequest;
 import com.main.dtos.UserPublicDto;
 import com.main.entities.Post;
 import com.main.entities.UserEntity;
 import com.main.repositories.UserRepository;
+import com.main.services.AdminService;
 import com.main.services.ImageService;
 import com.main.services.LikeService;
 import com.main.services.PostService;
@@ -26,6 +28,9 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+    
+    @Autowired
+    private AdminService adminService;
 
     @Autowired
     private UserRepository userRepository;
@@ -71,6 +76,18 @@ public class PostController {
         }
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(body);
     }
+    
+    
+    	@GetMapping("/posts")
+  	public ResponseEntity<?> getAllPostsForAdmin() {
+      try {
+          List<AdminPostDto> posts = adminService.getAllPostsWithStats();
+          return ResponseEntity.ok(posts);
+      } catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body("Error fetching posts");
+      }
+  }
 
 
     @PreAuthorize("hasRole('ADMIN')")

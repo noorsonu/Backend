@@ -1,4 +1,5 @@
 com\main\dtos\AdminUserDto.class
+com\main\security\CookieUtil.class
 com\main\controllers\CommentController.class
 com\main\dtos\AdminCommentDto.class
 com\main\serviceImpls\AdminServiceImpl.class
@@ -7,11 +8,13 @@ com\main\serviceImpls\CategoryServiceImpl.class
 com\main\entities\Post.class
 com\main\repositories\CommentRepository.class
 com\main\services\ImageService.class
+com\main\mappers\UserMapperImpl.class
 com\main\security\JwtAuthenticationEntryPoint.class
 com\main\controllers\TagController.class
 com\main\repositories\TagRepository.class
 com\main\config\PasswordEncoderConfig.class
 com\main\entities\UserEntity.class
+com\main\bootstrap\AdminInitializer.class
 com\main\dtos\AdminPostDto.class
 com\main\repositories\LikeRepository.class
 com\main\entities\Like.class
@@ -48,7 +51,9 @@ com\main\dtos\TagDto.class
 com\main\dtos\AuthRequest.class
 com\main\security\TokenBlackList.class
 com\main\serviceImpls\SpringMailService.class
+com\main\repositories\UserRepository.class
 com\main\enums\OtpChannel.class
+com\main\serviceImpls\UserServiceImpl.class
 com\main\dtos\UserDto.class
 com\main\repositories\OtpCodeRepository.class
 com\main\dtos\CommentResponseDto.class
@@ -67,6 +72,7 @@ com\main\repositories\CategoryRepository.class
 com\main\security\RestAccessDeniedHandler.class
 com\main\dtos\AdminSingleConfirmDto.class
 com\main\dtos\CreatePostRequest.class
+com\main\YaAllahApplication.class
 com\main\security\JwtFilter.class
 com\main\serviceImpls\CommentServiceImpl.class
 com\main\entities\Tag.class

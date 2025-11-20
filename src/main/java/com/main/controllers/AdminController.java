@@ -111,18 +111,7 @@ public class AdminController {
         }
     }
 
-    // Post Management
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/posts")
-    public ResponseEntity<?> getAllPostsForAdmin() {
-        try {
-            List<AdminPostDto> posts = adminService.getAllPostsWithStats();
-            return ResponseEntity.ok(posts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching posts");
-        }
-    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/posts/{postId}")
