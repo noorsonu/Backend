@@ -60,8 +60,8 @@ public class AuthController {
             // Store JWT in secure, HttpOnly cookie
             cookieUtil.addSecureCookie(response, "AUTH_TOKEN", token);
 
-            // Do not expose JWT to JavaScript in the body
-            return ResponseEntity.ok(new AuthResponse(null, "Login successful"));
+            // Also return JWT in the response body for clients that need to store/use it directly
+            return ResponseEntity.ok(new AuthResponse(token, "Login successful"));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid email or password"));
         } catch (Exception e) {
