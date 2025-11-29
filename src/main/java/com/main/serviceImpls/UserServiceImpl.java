@@ -214,6 +214,8 @@ public class UserServiceImpl implements UserService {
 
 		userToBlock.setBlocked(true);
 		userRepository.save(userToBlock);
+		userRepository.flush(); // Force immediate database update
+		log.info("User with ID {} has been blocked successfully", userId);
 	}
 
 	@Override
@@ -236,14 +238,20 @@ public class UserServiceImpl implements UserService {
 
 		userToUnblock.setBlocked(false);
 		userRepository.save(userToUnblock);
+		userRepository.flush(); // Force immediate database update
+		log.info("User with ID {} has been unblocked successfully", userId);
 	}
 
 	@Override
 	public UserEntity login(String email, String password) {
-		UserEntity user = userRepository.findByEmail(email)
+		// Fresh lookup to get latest blocked status from database
+		UserEntity user = userRepository.findByEmailFresh(email)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+		
+		log.info("Login attempt for user: {}, blocked status: {}", email, user.isBlocked());
 
 		if (user.isBlocked()) {
+			log.warn("Login denied for blocked user: {}", email);
 			throw new DisabledException("User is blocked and cannot log in.");
 		}
 
@@ -251,6 +259,7 @@ public class UserServiceImpl implements UserService {
 			throw new BadCredentialsException("Invalid email or password");
 		}
 
+		log.info("Login successful for user: {}", email);
 		return user;
 	}
 

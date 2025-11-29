@@ -7,7 +7,10 @@ import com.main.entities.UserEntity;
 import com.main.repositories.CommentRepository;
 import com.main.repositories.PostRepository;
 import com.main.repositories.UserRepository;
+import com.main.repositories.LikeRepository;
+import com.main.repositories.ImageRepository;
 import com.main.services.AdminService;
+import com.main.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,15 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private FileStorageService storageService;
 
     @Override
     public AdminDashboardStatsDto getDashboardStats() {
@@ -96,13 +108,18 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public List<AdminPostDto> getAllPostsWithStats() {
-
         List<Post> posts = postRepository.findAll();
         if (posts == null || posts.isEmpty()) {
             return Collections.emptyList();
         }
         return posts.stream()
-                .map(this::convertToAdminPostDto)
+                .map(post -> {
+                    // Force load images to avoid lazy loading issues
+                    if (post.getImages() != null) {
+                        post.getImages().size(); // This triggers lazy loading
+                    }
+                    return convertToAdminPostDto(post);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -116,19 +133,53 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public void deletePost(Long postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new RuntimeException("Post not found");
+        // Load post or throw if not found (will be mapped to 404/400 by controller)
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // 1) Delete likes for this post (FK: likes.post_id)
+        java.util.List<com.main.entities.Like> likes = likeRepository.findByPost(post);
+        if (!likes.isEmpty()) {
+            likeRepository.deleteAll(likes);
         }
-        postRepository.deleteById(postId);
+
+        // 2) Delete comments linked to this post (FK: comments.post_id)
+        java.util.List<com.main.entities.Comment> comments = commentRepository.findByPost_Id(postId);
+        if (!comments.isEmpty()) {
+            commentRepository.deleteAll(comments);
+        }
+
+        // 3) Delete images + physical files for this post
+        java.util.List<com.main.entities.Image> images = imageRepository.findByPost_Id(postId);
+        for (com.main.entities.Image img : images) {
+            // delete file from storage if present
+            if (img.getFileName() != null) {
+                storageService.delete(img.getFileName());
+            }
+        }
+        if (!images.isEmpty()) {
+            imageRepository.deleteAll(images);
+        }
+
+        // 4) Now safely delete the post itself
+        postRepository.delete(post);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AdminCommentDto> getAllCommentsWithDetails() {
-        return commentRepository.findAll().stream()
-                .map(this::convertToAdminCommentDto)
-                .collect(Collectors.toList());
+        try {
+            List<Comment> comments = commentRepository.findAll();
+            return comments.stream()
+                    .map(this::convertToAdminCommentDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error in getAllCommentsWithDetails: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -149,6 +200,7 @@ public class AdminServiceImpl implements AdminService {
                 user.getEmail(),
                 user.getPhoneNumber(),
                 user.getUserType(),
+                user.isBlocked(),
                 user.getCreatedAt(),
                 postCount,
                 commentCount
@@ -166,12 +218,25 @@ public class AdminServiceImpl implements AdminService {
             authorEmail = createdBy.getEmail();
         }
 
+        // Get image URL from post's images
+        String imageUrl = null;
+        
+        // Direct database query for images
+        List<com.main.entities.Image> images = imageRepository.findByPost_Id(post.getId());
+        if (!images.isEmpty()) {
+            String fileName = images.get(0).getFileName();
+            if (fileName != null && !fileName.trim().isEmpty()) {
+                imageUrl = "http://localhost:8081/api/uploads/" + fileName;
+            }
+        }
+
         return new AdminPostDto(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 authorName,
                 authorEmail,
+                imageUrl,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 commentCount
@@ -179,22 +244,89 @@ public class AdminServiceImpl implements AdminService {
     }
 
     private AdminCommentDto convertToAdminCommentDto(Comment comment) {
-        return new AdminCommentDto(
-                comment.getId(),
-                comment.getContent(),
-                comment.getPost().getTitle(),
-                comment.getUser().getName(),
-                comment.getUser().getEmail(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt()
-        );
+        try {
+            String userName = "Anonymous";
+            String userEmail = "Not provided";
+            String userPhone = "Not provided";
+            
+            if (comment.getUser() != null) {
+                userName = comment.getUser().getName() != null ? comment.getUser().getName() : "Anonymous";
+                userEmail = comment.getUser().getEmail() != null ? comment.getUser().getEmail() : "Not provided";
+                userPhone = comment.getUser().getPhoneNumber() != null ? comment.getUser().getPhoneNumber() : "Not provided";
+            } else if (comment.getAuthorName() != null) {
+                userName = comment.getAuthorName();
+            }
+            
+            // Safely get post information
+            String postTitle = "Unknown Post";
+            Long postId = null;
+            try {
+                if (comment.getPost() != null) {
+                    postTitle = comment.getPost().getTitle();
+                    postId = comment.getPost().getId();
+                }
+            } catch (Exception e) {
+                System.err.println("Error accessing post for comment " + comment.getId() + ": " + e.getMessage());
+            }
+            
+            Long parentCommentId = null;
+            if (comment.getParentComment() != null) {
+                parentCommentId = comment.getParentComment().getId();
+            }
+
+            return new AdminCommentDto(
+                    comment.getId(),
+                    comment.getContent(),
+                    postTitle,
+                    postId,
+                    userName,
+                    userEmail,
+                    userPhone,
+                    parentCommentId,
+                    comment.getReplyToUser(),
+                    comment.getCreatedAt(),
+                    comment.getUpdatedAt()
+            );
+        } catch (Exception e) {
+            System.err.println("Error converting comment " + comment.getId() + " to DTO: " + e.getMessage());
+            // Return a basic DTO with minimal info
+            Long parentCommentId = null;
+            if (comment.getParentComment() != null) {
+                parentCommentId = comment.getParentComment().getId();
+            }
+
+            return new AdminCommentDto(
+                    comment.getId(),
+                    comment.getContent() != null ? comment.getContent() : "Error loading content",
+                    "Unknown Post",
+                    null,
+                    "Unknown User",
+                    "Not provided",
+                    "Not provided",
+                    parentCommentId,
+                    comment.getReplyToUser(),
+                    comment.getCreatedAt(),
+                    comment.getUpdatedAt()
+            );
+        }
     }
 
 	@Override
+	@Transactional
 	public void deleteUser(Long userId) {
-		if (!userRepository.existsById(userId)) {
-			throw new RuntimeException("User not found");
+		UserEntity user = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		// 1) Delete user's comments using existing method
+		commentRepository.deleteByUser_Id(userId);
+
+		// 2) Delete user's posts (this will cascade to images, likes, comments)
+		java.util.List<com.main.entities.Post> userPosts = postRepository.findByCreatedBy(user);
+		for (com.main.entities.Post post : userPosts) {
+			deletePost(post.getId());
 		}
-		userRepository.deleteById(userId);
+
+		// 3) Finally delete the user
+		userRepository.delete(user);
 	}
 }

@@ -50,6 +50,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Like> likes = new HashSet<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Image> images = new HashSet<>();
+
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = Instant.now();

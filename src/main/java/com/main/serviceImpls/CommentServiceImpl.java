@@ -21,27 +21,66 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
 
     private CommentResponseDto convertToDto(Comment comment) {
-        UserPublicDto userPublicDto = new UserPublicDto(comment.getUser().getId(), comment.getUser().getName(), comment.getUser().getEmail());
+        UserPublicDto userPublicDto = null;
+        String authorName = comment.getAuthorName();
+        
+        if (comment.getUser() != null) {
+            // Use name instead of email for UserPublicDto
+            userPublicDto = new UserPublicDto(comment.getUser().getId(), comment.getUser().getName(), comment.getUser().getName());
+            if (authorName == null) {
+                authorName = comment.getUser().getName();
+            }
+        }
+        
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getContent(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
                 userPublicDto,
-                comment.getPost().getId()
+                comment.getPost().getId(),
+                comment.getParentComment() != null ? comment.getParentComment().getId() : null,
+                comment.getReplyToUser(),
+                authorName != null ? authorName : "Anonymous"
         );
     }
 
     @Override
     @Transactional
-    public CommentResponseDto addComment(Post post, UserEntity user, String content) {
-        if (user.isBlocked()) {
+    public CommentResponseDto addComment(Post post, UserEntity user, String content, String authorName) {
+        if (user != null && user.isBlocked()) {
             throw new IllegalArgumentException("Blocked users cannot add comments.");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment content cannot be empty");
+        }
+        Comment c = new Comment();
+        c.setPost(post);
+        c.setUser(user);
+        c.setContent(content.trim());
+        c.setAuthorName(authorName != null ? authorName : "Anonymous");
+        Comment savedComment = commentRepository.save(c);
+        return convertToDto(savedComment);
+    }
+
+    @Override
+    @Transactional
+    public CommentResponseDto addReply(Post post, UserEntity user, String content, Long parentCommentId, String replyToUser, String authorName) {
+        if (user != null && user.isBlocked()) {
+            throw new IllegalArgumentException("Blocked users cannot add comments.");
+        }
+        Comment parentComment = null;
+        if (parentCommentId != null) {
+            parentComment = commentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
         }
         Comment c = new Comment();
         c.setPost(post);
         c.setUser(user);
         c.setContent(content);
+        c.setParentComment(parentComment);
+        c.setReplyToUser(replyToUser);
+        c.setAuthorName(authorName);
         Comment savedComment = commentRepository.save(c);
         return convertToDto(savedComment);
     }

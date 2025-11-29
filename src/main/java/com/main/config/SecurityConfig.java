@@ -55,8 +55,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/swagger-ui/index.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/comments").permitAll()
+                                "/swagger-ui/index.html",
+                                "/api/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/comments", "/api/posts/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -88,6 +90,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "https://allah-blog.vercel.app",
                 "http://localhost:3000",
+                "http://localhost:5173",
                 "https://springboot-with-postgres.onrender.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

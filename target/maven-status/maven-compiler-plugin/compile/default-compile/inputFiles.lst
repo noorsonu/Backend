@@ -7,7 +7,9 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controll
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\AuthController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\CategoryController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\CommentController.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\ImageController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\PostController.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\PrayerTimeController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\ProfileController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\controllers\TagController.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\dtos\AccountRecoveryConfirmDto.java
@@ -36,6 +38,7 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\Like.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\OtpCode.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\Post.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\PrayerTime.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\Tag.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\entities\UserEntity.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\enums\OtpChannel.java
@@ -49,6 +52,7 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\reposito
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\LikeRepository.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\OtpCodeRepository.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\PostRepository.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\PrayerTimeRepository.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\TagRepository.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\repositories\UserRepository.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\security\CookieUtil.java
@@ -78,6 +82,7 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\MailService.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\OtpService.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\PostService.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\PrayerTimeService.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\SmsService.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\TagService.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\services\UserService.java

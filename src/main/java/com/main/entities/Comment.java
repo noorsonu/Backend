@@ -21,8 +21,8 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
     private UserEntity user; 
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -33,6 +33,17 @@ public class Comment {
 
     @Column(nullable = false)
     private Instant updatedAt = Instant.now();
+
+    // For nested comments
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
+    @Column(name = "reply_to_user")
+    private String replyToUser;
+    
+    @Column(name = "author_name")
+    private String authorName;
 
     @PreUpdate
     public void onUpdate() {

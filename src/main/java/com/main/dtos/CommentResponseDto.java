@@ -16,4 +16,7 @@ public class CommentResponseDto {
     private Instant updatedAt;
     private UserPublicDto user;
     private Long postId;
+    private Long parentCommentId;
+    private String replyToUser;
+    private String authorName;
 }

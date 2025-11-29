@@ -23,7 +23,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-//@CrossOrigin(origins = "*")
 public class PostController {
 
 	@Autowired
@@ -46,6 +45,13 @@ public class PostController {
 
 	private UserEntity currentUser(Authentication auth) {
 		return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
+	private UserEntity getCurrentUserOrNull(Authentication auth) {
+		if (auth == null || auth.getName() == null) {
+			return null;
+		}
+		return userRepository.findByEmail(auth.getName()).orElse(null);
 	}
 
 	// Admin CRUD (multipart: title, content, optional image)
@@ -74,9 +80,21 @@ public class PostController {
 	}
 
 	@GetMapping("/posts")
-	public ResponseEntity<?> getAllPostsForAdmin() {
+	public ResponseEntity<?> getAllPostsForAdmin(Authentication auth) {
 		try {
 			List<AdminPostDto> posts = adminService.getAllPostsWithStats();
+			UserEntity currentUser = getCurrentUserOrNull(auth);
+			
+			// Add like status and counts for each post
+			for (AdminPostDto post : posts) {
+				if (currentUser != null) {
+					boolean isLiked = likeService.isPostLikedByUser(post.getId(), currentUser);
+					post.setLiked(isLiked);
+				}
+				int likeCount = likeService.getLikesForPost(post.getId()).size();
+				post.setLikeCount(likeCount);
+			}
+			
 			return ResponseEntity.ok(posts);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching posts");
@@ -106,9 +124,13 @@ public class PostController {
 	@PostMapping("/posts/{postId}/like")
 	public ResponseEntity<?> toggleLikePost(@PathVariable Long postId, Authentication auth) {
 		try {
+			if (auth == null || auth.getName() == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication required"));
+			}
 			UserEntity user = currentUser(auth);
 			likeService.toggleLike(postId, user);
-			return ResponseEntity.ok(Map.of("message", "Post like status toggled successfully"));
+			boolean isLiked = likeService.isPostLikedByUser(postId, user);
+			return ResponseEntity.ok(Map.of("message", "Post like status toggled successfully", "isLiked", isLiked));
 		} catch (RuntimeException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
 		} catch (Exception e) {
@@ -127,6 +149,23 @@ public class PostController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Map.of("error", "Error fetching likes"));
+		}
+	}
+
+	@GetMapping("/posts/{postId}/liked")
+	public ResponseEntity<?> isPostLiked(@PathVariable Long postId, Authentication auth) {
+		try {
+			if (auth == null || auth.getName() == null) {
+				return ResponseEntity.ok(Map.of("isLiked", false));
+			}
+			UserEntity user = currentUser(auth);
+			boolean isLiked = likeService.isPostLikedByUser(postId, user);
+			return ResponseEntity.ok(Map.of("isLiked", isLiked));
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Map.of("error", "Error checking like status"));
 		}
 	}
 

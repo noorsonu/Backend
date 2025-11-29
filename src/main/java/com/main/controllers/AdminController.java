@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class AdminController {
 
     @Autowired
@@ -113,6 +113,19 @@ public class AdminController {
 
 
 
+    // Post Management
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/posts")
+    public ResponseEntity<?> getAllPostsForAdmin() {
+        try {
+            List<AdminPostDto> posts = adminService.getAllPostsWithStats();
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching posts");
+        }
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/posts/{postId}")
     public ResponseEntity<?> getPostDetails(@PathVariable Long postId) {
@@ -138,6 +151,19 @@ public class AdminController {
     }
 
 
+
+    // Comment Management
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/comments")
+    public ResponseEntity<?> getAllCommentsForAdmin() {
+        try {
+            List<AdminCommentDto> comments = adminService.getAllCommentsWithDetails();
+            return ResponseEntity.ok(comments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching comments");
+        }
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/comments/{commentId}")

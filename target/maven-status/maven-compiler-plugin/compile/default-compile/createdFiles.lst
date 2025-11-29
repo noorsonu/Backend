@@ -28,12 +28,16 @@ com\main\services\CommentService.class
 com\main\services\FileStorageService.class
 com\main\enums\OtpPurpose.class
 com\main\dtos\AuthResponse.class
+com\main\entities\PrayerTime.class
 com\main\services\CategoryService.class
 com\main\services\PostService.class
 com\main\config\SecurityConfig.class
 com\main\security\JwtUtils.class
 com\main\dtos\AdminDashboardStatsDto.class
+com\main\config\WebConfig.class
+com\main\controllers\ImageController.class
 com\main\config\SwaggerConfig.class
+com\main\controllers\PrayerTimeController.class
 com\main\serviceImpls\LikeServiceImpl.class
 com\main\dtos\UpdatePostRequest.class
 com\main\dtos\UserPublicDto.class
@@ -51,6 +55,7 @@ com\main\dtos\TagDto.class
 com\main\dtos\AuthRequest.class
 com\main\security\TokenBlackList.class
 com\main\serviceImpls\SpringMailService.class
+com\main\repositories\PrayerTimeRepository.class
 com\main\repositories\UserRepository.class
 com\main\enums\OtpChannel.class
 com\main\serviceImpls\UserServiceImpl.class
@@ -73,6 +78,7 @@ com\main\security\RestAccessDeniedHandler.class
 com\main\dtos\AdminSingleConfirmDto.class
 com\main\dtos\CreatePostRequest.class
 com\main\YaAllahApplication.class
+com\main\services\PrayerTimeService.class
 com\main\security\JwtFilter.class
 com\main\serviceImpls\CommentServiceImpl.class
 com\main\entities\Tag.class

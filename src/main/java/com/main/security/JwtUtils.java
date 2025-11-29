@@ -64,9 +64,16 @@ public class JwtUtils {
         List<String> roles = userDetails.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList());
+        
+        String name = "User";
+        if (userDetails instanceof UserEntity) {
+            name = ((UserEntity) userDetails).getName();
+        }
+        
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("roles", roles)
+                .claim("name", name)
                 .setIssuedAt(now)
                 .setExpiration(exp)
                 .signWith(getKey(), SignatureAlgorithm.HS256)

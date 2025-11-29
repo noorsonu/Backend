@@ -42,16 +42,39 @@ public class CommentController {
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // Add a comment to an admin post (any authenticated user)
+    // Add a comment to an admin post (any authenticated user or anonymous)
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long postId, @RequestBody CreateCommentRequest req, Authentication auth) {
-        UserEntity user = currentUser(auth);
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
-        CommentResponseDto c = commentService.addComment(post, user, req.getContent());
-        return ResponseEntity.ok(c);
+    public ResponseEntity<?> addComment(@PathVariable Long postId, @RequestBody CreateCommentRequest req, Authentication auth) {
+        try {
+            if (req.getContent() == null || req.getContent().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Comment content cannot be empty"));
+            }
+            
+            UserEntity user = null;
+            String authorName = "Anonymous";
+            
+            if (auth != null) {
+                user = currentUser(auth);
+                authorName = user.getName(); // Use database stored name
+            }
+            
+            Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+            
+            CommentResponseDto c;
+            if (req.getParentCommentId() != null) {
+                // This is a reply
+                c = commentService.addReply(post, user, req.getContent(), req.getParentCommentId(), req.getReplyToUser(), authorName);
+            } else {
+                // This is a main comment
+                c = commentService.addComment(post, user, req.getContent(), authorName);
+            }
+            return ResponseEntity.ok(c);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
-    // List comments by post
+    // List comments by post (public access)
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<List<CommentResponseDto>> listByPost(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.listByPost(postId));

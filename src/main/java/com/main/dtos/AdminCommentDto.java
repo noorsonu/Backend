@@ -13,8 +13,12 @@ public class AdminCommentDto {
     private Long id;
     private String content;
     private String postTitle;
+    private Long postId;
     private String userName;
     private String userEmail;
+    private String userPhone;
+    private Long parentCommentId;
+    private String replyToUser;
     private Instant createdAt;
     private Instant updatedAt;
 }
