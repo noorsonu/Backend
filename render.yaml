@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: yaallah-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: yaallah-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: yaallah-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: yaallah-db
+          property: password
+      - key: PORT
+        value: 8080
+      - key: CORS_ALLOWED_ORIGINS
+        value: http://localhost:3000,https://allah-blog.vercel.app
+
+databases:
+  - name: yaallah-db
+    databaseName: springboot_db_hz7s
+    user: springboot_db_hz7s_user
+    plan: free
+    region: oregon
