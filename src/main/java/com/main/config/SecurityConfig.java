@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
+.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -63,8 +63,15 @@ public class SecurityConfig {
                                 "/swagger-ui/index.html",
                                 "/api/uploads/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/comments", "/api/posts/*/comments")
+                        // Public GET endpoints
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/posts",
+                                "/api/comments",
+                                "/api/posts/*/comments",
+                                "/api/prayer-times")
                         .permitAll()
+                        // Public PUT for prayer times (remove if you want this secured by JWT)
+                        .requestMatchers(HttpMethod.PUT, "/api/prayer-times").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
