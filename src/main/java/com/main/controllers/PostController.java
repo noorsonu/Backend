@@ -23,6 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostController {
 
 	@Autowired

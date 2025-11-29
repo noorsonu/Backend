@@ -32,7 +32,7 @@ public class SecurityConfig {
 
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private JwtFilter jwtFilter;
 
@@ -46,7 +46,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -56,8 +56,10 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/index.html",
-                                "/api/uploads/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/comments", "/api/posts/*/comments").permitAll()
+                                "/api/uploads/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/comments", "/api/posts/*/comments")
+                        .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
@@ -85,8 +87,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowCredentials(true);
+        
+        config.setAllowCredentials(false);
         config.addAllowedOriginPattern("*");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");

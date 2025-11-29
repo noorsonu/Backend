@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/prayer-times")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PrayerTimeController {
 
     @Autowired
