@@ -1,6 +1,7 @@
 package com.main.serviceImpls;
 
 import com.main.services.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,9 @@ import java.util.UUID;
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final Path uploadDir = Paths.get("uploads");
+
+    @Value("${app.backend-base-url:}")
+    private String backendBaseUrl;
 
     public FileStorageServiceImpl() {
         try {
@@ -40,8 +44,15 @@ public class FileStorageServiceImpl implements FileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Could not store file", e);
         }
-        // public URL served by WebMvc resource handler
-        return "/uploads/" + newName;
+        // Build public URL served by WebMvc resource handler.
+        // If app.backend-base-url is set (e.g. https://backend-7mzg.onrender.com),
+        // return an absolute URL. Otherwise, return a relative path for local dev.
+        String relativePath = "/api/uploads/" + newName;
+        if (backendBaseUrl == null || backendBaseUrl.isBlank()) {
+            return relativePath;
+        }
+        String base = backendBaseUrl.endsWith("/") ? backendBaseUrl.substring(0, backendBaseUrl.length() - 1) : backendBaseUrl;
+        return base + relativePath;
     }
 
     @Override

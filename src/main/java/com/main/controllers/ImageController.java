@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
+@CrossOrigin(origins = "*")
 public class ImageController {
 
     private final Path uploadPath = Paths.get("uploads");
