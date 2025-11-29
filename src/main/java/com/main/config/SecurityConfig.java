@@ -1,8 +1,10 @@
 package com.main.config;
 
 import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -41,6 +43,9 @@ public class SecurityConfig {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${cors.allowed-origins}")
+    private String corsAllowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -88,11 +93,15 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow your Vercel frontend and local dev frontend
-        config.setAllowedOrigins(List.of(
-                "https://frontend-ghq2tlag2-noorsonus-projects.vercel.app",
-                "http://localhost:3000"
-        ));
+        // Read allowed origins/patterns from application.properties (cors.allowed-origins)
+        // Example default: http://localhost:3000,https://*.vercel.app,https://springboot-with-postgres.onrender.com
+        var origins = Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        // Use origin patterns so that wildcards like https://*.vercel.app work
+        config.setAllowedOriginPatterns(origins);
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
