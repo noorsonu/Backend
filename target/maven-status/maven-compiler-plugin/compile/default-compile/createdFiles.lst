@@ -1,5 +1,6 @@
 com\main\dtos\AdminUserDto.class
 com\main\security\CookieUtil.class
+com\main\serviceImpls\CloudinaryFileStorageServiceImpl.class
 com\main\controllers\CommentController.class
 com\main\dtos\AdminCommentDto.class
 com\main\serviceImpls\AdminServiceImpl.class
@@ -50,6 +51,7 @@ com\main\dtos\UpdateCommentRequest.class
 com\main\services\LikeService.class
 com\main\services\OtpService.class
 com\main\controllers\AdminController.class
+com\main\config\DataInitializer.class
 com\main\dtos\AdminUpdateUserRequest.class
 com\main\dtos\TagDto.class
 com\main\dtos\AuthRequest.class
@@ -82,6 +84,7 @@ com\main\services\PrayerTimeService.class
 com\main\security\JwtFilter.class
 com\main\serviceImpls\CommentServiceImpl.class
 com\main\entities\Tag.class
+com\main\config\CloudinaryConfig.class
 com\main\repositories\PostRepository.class
 com\main\services\MailService.class
 com\main\entities\Comment.class

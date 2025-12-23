@@ -23,7 +23,6 @@ public class AdminController {
     @Autowired
     private UserService userService;
 
-    // Dashboard Statistics
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/dashboard/stats")
     public ResponseEntity<?> getDashboardStats() {

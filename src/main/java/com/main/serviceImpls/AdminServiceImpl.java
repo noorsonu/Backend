@@ -224,10 +224,8 @@ public class AdminServiceImpl implements AdminService {
         // Direct database query for images
         List<com.main.entities.Image> images = imageRepository.findByPost_Id(post.getId());
         if (!images.isEmpty()) {
-            String fileName = images.get(0).getFileName();
-            if (fileName != null && !fileName.trim().isEmpty()) {
-                imageUrl = "http://localhost:8081/api/uploads/" + fileName;
-            }
+            // Use the stored URL from the Image entity instead of constructing manually
+            imageUrl = images.get(0).getUrl();
         }
 
         return new AdminPostDto(

@@ -70,8 +70,9 @@ public class SecurityConfig {
                                 "/api/posts/*/comments",
                                 "/api/prayer-times")
                         .permitAll()
-                        // Public PUT for prayer times (remove if you want this secured by JWT)
+                        // Public PUT and POST for prayer times
                         .requestMatchers(HttpMethod.PUT, "/api/prayer-times").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/prayer-times/init").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/posts/*/comments").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))

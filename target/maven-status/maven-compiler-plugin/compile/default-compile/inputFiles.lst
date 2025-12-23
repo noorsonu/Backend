@@ -1,4 +1,6 @@
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\bootstrap\AdminInitializer.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\CloudinaryConfig.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\DataInitializer.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\PasswordEncoderConfig.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\SecurityConfig.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\config\SwaggerConfig.java
@@ -63,6 +65,7 @@ C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\security
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\security\TokenBlackList.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\AdminServiceImpl.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\CategoryServiceImpl.java
+C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\CloudinaryFileStorageServiceImpl.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\CommentServiceImpl.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\FileStorageServiceImpl.java
 C:\Users\noors\Downloads\Spring-projects\Backend\src\main\java\com\main\serviceImpls\ImageServiceImpl.java

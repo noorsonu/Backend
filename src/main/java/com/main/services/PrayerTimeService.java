@@ -30,17 +30,33 @@ public class PrayerTimeService {
             prayerTime.setTime(time);
             return prayerTimeRepository.save(prayerTime);
         } else {
-            throw new RuntimeException("Prayer time not found: " + name);
+            // Create new prayer time if it doesn't exist
+            String icon = getIconForPrayer(name);
+            PrayerTime newPrayerTime = new PrayerTime(name, time, icon);
+            return prayerTimeRepository.save(newPrayerTime);
+        }
+    }
+    
+    private String getIconForPrayer(String name) {
+        switch (name.toLowerCase()) {
+            case "fajr": return "🌅";
+            case "dhuhr": return "☀️";
+            case "asr": return "🌤️";
+            case "maghrib": return "🌅";
+            case "isha": return "🌙";
+            default: return "🕌";
         }
     }
 
     public void initializeDefaultPrayerTimes() {
-        if (prayerTimeRepository.count() == 0) {
-            prayerTimeRepository.save(new PrayerTime("Fajr", "05:30", "🌅"));
-            prayerTimeRepository.save(new PrayerTime("Dhuhr", "12:15", "☀️"));
-            prayerTimeRepository.save(new PrayerTime("Asr", "15:45", "🌤️"));
-            prayerTimeRepository.save(new PrayerTime("Maghrib", "18:20", "🌅"));
-            prayerTimeRepository.save(new PrayerTime("Isha", "19:45", "🌙"));
+        String[] prayerNames = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
+        String[] defaultTimes = {"05:30", "12:15", "15:45", "18:20", "19:45"};
+        
+        for (int i = 0; i < prayerNames.length; i++) {
+            if (!prayerTimeRepository.findByName(prayerNames[i]).isPresent()) {
+                String icon = getIconForPrayer(prayerNames[i]);
+                prayerTimeRepository.save(new PrayerTime(prayerNames[i], defaultTimes[i], icon));
+            }
         }
     }
 }
