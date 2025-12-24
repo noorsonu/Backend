@@ -19,6 +19,15 @@ public class PrayerTimeService {
             initializeDefaultPrayerTimes();
             prayerTimes = prayerTimeRepository.findAll();
         }
+        
+        // Sort prayer times in correct order
+        String[] order = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
+        prayerTimes.sort((a, b) -> {
+            int indexA = java.util.Arrays.asList(order).indexOf(a.getName());
+            int indexB = java.util.Arrays.asList(order).indexOf(b.getName());
+            return Integer.compare(indexA, indexB);
+        });
+        
         return prayerTimes;
     }
 
