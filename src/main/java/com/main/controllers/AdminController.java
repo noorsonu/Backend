@@ -78,7 +78,7 @@ public class AdminController {
     public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         try {
             String result = "User deleted successfully";
-            adminService.deleteUser(userId); // Admin service will handle the deletion
+            adminService.deleteUser(userId); 
             return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
